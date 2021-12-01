@@ -76,6 +76,23 @@
 
 	};
 
+	scmi_regu: scmi-regu {
+		compatible = "st,scmi-regulator-consumer";
+		scmi-channel-id = <0>;
+
+		scmi_reg11: voltd-reg11 {
+			voltd-name = "reg11";
+		};
+
+		scmi_reg18: voltd-reg18 {
+			voltd-name = "reg18";
+		};
+
+		scmi_usb33: voltd-usb33 {
+			voltd-name = "usb33";
+		};
+	};
+
 	soc {
 		compatible = "simple-bus";
 		#address-cells = <1>;
