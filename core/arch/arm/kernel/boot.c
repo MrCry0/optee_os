@@ -919,20 +919,29 @@ static int check_node_compat_prefix(struct dt_descriptor *dt, int offs,
 
 static int dt_add_psci_cpu_enable_methods(struct dt_descriptor *dt)
 {
-	int offs = 0;
+#define CPU_PATH_SIZE 20
 
-	while (1) {
-		offs = fdt_next_node(dt->blob, offs, NULL);
-		if (offs < 0)
-			break;
-		if (fdt_getprop(dt->blob, offs, "enable-method", NULL))
-			continue; /* already set */
-		if (check_node_compat_prefix(dt, offs, "arm,cortex-a"))
-			continue; /* no compatible */
-		if (fdt_setprop_string(dt->blob, offs, "enable-method", "psci"))
+	for (int cpu_idx = 0; cpu_idx < CFG_TEE_CORE_NB_CORE; cpu_idx++) {
+		char cpu_path[CPU_PATH_SIZE];
+		int noffset = 0, ret = 0;
+
+		ret = snprintf(cpu_path, CPU_PATH_SIZE, "/cpus/cpu@%d",
+			       cpu_idx);
+		if (ret < 0 || ret >= CPU_PATH_SIZE)
 			return -1;
-		/* Need to restart scanning as offsets may have changed */
-		offs = 0;
+
+		noffset = fdt_path_offset(dt->blob, cpu_path);
+		if (noffset < 0)
+			continue;
+
+		if (check_node_compat_prefix(dt, noffset,
+					     "arm,cortex-a"))
+			continue; /* no compatible */
+
+		ret = fdt_setprop_string(dt->blob, noffset,
+					 "enable-method", "psci");
+		if (ret)
+			return -1;
 	}
 	return 0;
 }
