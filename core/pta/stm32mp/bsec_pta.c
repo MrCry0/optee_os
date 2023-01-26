@@ -14,6 +14,9 @@
 #include <string.h>
 #include <util.h>
 
+#define TA_STM32MP_NVMEM_UUID { 0x1a8342cc, 0x81a5, 0x4512, \
+		{ 0x99, 0xfe, 0x9e, 0x2b, 0x3e, 0x37, 0xd6, 0x26 } }
+
 static_assert(IS_ENABLED(CFG_STM32_BSEC));
 
 #define PTA_NAME "bsec.pta"
@@ -287,6 +290,23 @@ static TEE_Result pta_bsec_open_session(uint32_t ptypes __unused,
 					void **session __unused)
 {
 	uint32_t login = to_ta_session(ts_get_current_session())->clnt_id.login;
+
+	struct ts_session *caller_ts = ts_get_calling_session();
+	static const TEE_UUID ta_uuid = TA_STM32MP_NVMEM_UUID;
+	uint32_t state = BSEC_STATE_INVALID;
+	TEE_Result res = TEE_ERROR_GENERIC;
+
+	if (login == TEE_LOGIN_TRUSTED_APP &&
+	    !memcmp((char *)&caller_ts->ctx->uuid, (char *)&ta_uuid,
+		    sizeof(TEE_UUID))) {
+		assert(is_user_ta_ctx(caller_ts->ctx));
+
+		res = stm32_bsec_get_state(&state);
+		if (res || state != BSEC_STATE_SEC_OPEN)
+			return TEE_ERROR_ACCESS_DENIED;
+
+		return TEE_SUCCESS;
+	}
 
 	if (login == TEE_LOGIN_REE_KERNEL)
 		return TEE_SUCCESS;
