@@ -14,8 +14,10 @@
  * Avoid using the HUK stub implementation for the platforms below as this will
  * lead to using a non secure key.
  */
-#if !defined(CFG_MX6) && !defined(CFG_MX7) && !defined(CFG_MX7ULP) && \
-	!defined(CFG_MX8M)
+#if defined(CFG_MX6UL) || (!defined(CFG_MX6) && \
+			   !defined(CFG_MX7) && \
+			   !defined(CFG_MX7ULP) && \
+			   !defined(CFG_MX8M))
 /*
  * Override these in your platform code to really fetch device-unique
  * bits from e-fuses or whatever.
