@@ -20,6 +20,8 @@
 			clock-frequency = <650000000>;
 			device_type = "cpu";
 			reg = <0>;
+			clocks = <&rcc CK_MPU>;
+			clock-names = "cpu";
 		};
 	};
 
@@ -1156,15 +1158,21 @@
 		};
 
 		rcc: rcc@50000000 {
-			compatible = "st,stm32mp1-rcc", "syscon";
+			compatible = "st,stm32mp1-rcc-secure", "st,stm32mp1-rcc", "syscon";
 			reg = <0x50000000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+			interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
+			secure-interrupts = <GIC_SPI 145 IRQ_TYPE_LEVEL_HIGH>;
+			secure-interrupt-names = "wakeup";
 		};
 
 		pwr_regulators: pwr@50001000 {
 			compatible = "st,stm32mp1,pwr-reg";
 			reg = <0x50001000 0x10>;
+			secure-interrupt-names = "wakeup";
 
 			reg11: reg11 {
 				regulator-name = "reg11";
@@ -1615,6 +1623,7 @@
 		bsec: efuse@5c005000 {
 			compatible = "st,stm32mp15-bsec";
 			reg = <0x5c005000 0x400>;
+			clocks = <&rcc BSEC>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 
