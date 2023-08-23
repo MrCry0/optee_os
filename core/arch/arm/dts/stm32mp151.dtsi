@@ -1656,6 +1656,7 @@
 			};
 			pkh_otp: pkh_otp@60 {
 				reg = <0x60 0x20>;
+				st,non-secure-otp-provisioning;
 			};
 			ethernet_mac_address: mac@e4 {
 				reg = <0xe4 0x8>;
@@ -1663,6 +1664,7 @@
 			};
 			huk_otp: huk_otp@f0 {
 				reg = <0xf0 0x10>;
+				st,non-secure-otp-provisioning;
 			};
 		};
 
